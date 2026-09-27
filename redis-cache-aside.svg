@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1080" role="img" aria-labelledby="title desc">
+  <title id="title">Redis cache-aside: reads and writes</title>
+  <desc id="desc">A detailed three-part flow diagram for cache hits, cache misses, and database writes with Redis invalidation.</desc>
+  <defs>
+    <style>
+      text{font-family:Inter,Arial,sans-serif;fill:#17243b} .heading{font-size:42px;font-weight:800} .sub{font-size:21px;fill:#52627b} .section{font-size:28px;font-weight:800} .step{font-size:19px;font-weight:750} .detail{font-size:16px;fill:#52627b} .note{font-size:18px;fill:#34445e} .num{font-size:20px;font-weight:800;fill:white}
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#637792"/></marker>
+  </defs>
+  <rect width="1600" height="1080" fill="#f7f9fc"/>
+  <text x="64" y="74" class="heading">Redis cache-aside</text>
+  <text x="65" y="112" class="sub">Your API coordinates two separate network services. PostgreSQL holds the durable record; Redis holds a temporary copy.</text>
+
+  <rect x="48" y="148" width="1504" height="237" rx="22" fill="#ecf9f4" stroke="#abdcc7" stroke-width="2"/>
+  <circle cx="86" cy="193" r="22" fill="#199264"/><text x="80" y="201" class="num">1</text>
+  <text x="122" y="202" class="section">Read: cache hit</text>
+  <text x="122" y="231" class="detail">The API returns the cached value. PostgreSQL receives no query.</text>
+  <g>
+    <rect x="75" y="268" width="250" height="84" rx="14" fill="white" stroke="#c7d8e3"/><text x="94" y="301" class="step">Client requests user 42</text><text x="94" y="329" class="detail">GET /users/42</text>
+    <path d="M330 310 H390" stroke="#637792" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="397" y="268" width="250" height="84" rx="14" fill="white" stroke="#efb2b4"/><text x="416" y="301" class="step">API asks Redis</text><text x="416" y="329" class="detail">GET user:42</text>
+    <path d="M652 310 H712" stroke="#637792" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="719" y="268" width="250" height="84" rx="14" fill="white" stroke="#efb2b4"/><text x="738" y="301" class="step">Redis returns HIT</text><text x="738" y="329" class="detail">Cached user data</text>
+    <path d="M974 310 H1034" stroke="#637792" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="1041" y="268" width="435" height="84" rx="14" fill="white" stroke="#c7d8e3"/><text x="1060" y="301" class="step">API responds to client</text><text x="1060" y="329" class="detail">No PostgreSQL call</text>
+  </g>
+
+  <rect x="48" y="404" width="1504" height="277" rx="22" fill="#eef5ff" stroke="#b7ccef" stroke-width="2"/>
+  <circle cx="86" cy="449" r="22" fill="#326cca"/><text x="80" y="457" class="num">2</text>
+  <text x="122" y="458" class="section">Read: cache miss</text>
+  <text x="122" y="487" class="detail">The API fetches the record from PostgreSQL, stores a temporary copy in Redis, then responds.</text>
+  <g>
+    <rect x="75" y="524" width="218" height="119" rx="14" fill="white" stroke="#c7d8e3"/><text x="92" y="558" class="step">Client → API</text><text x="92" y="587" class="detail">Request user 42</text>
+    <path d="M298 584 H324" stroke="#637792" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="331" y="524" width="218" height="119" rx="14" fill="white" stroke="#efb2b4"/><text x="348" y="558" class="step">API → Redis</text><text x="348" y="587" class="detail">GET user:42</text><text x="348" y="614" class="detail">Result: MISS</text>
+    <path d="M554 584 H580" stroke="#637792" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="587" y="524" width="218" height="119" rx="14" fill="white" stroke="#a9bfe5"/><text x="604" y="558" class="step">API → PostgreSQL</text><text x="604" y="587" class="detail">SELECT user 42</text><text x="604" y="614" class="detail">Result: user row</text>
+    <path d="M810 584 H836" stroke="#637792" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="843" y="524" width="218" height="119" rx="14" fill="white" stroke="#efb2b4"/><text x="860" y="558" class="step">API → Redis</text><text x="860" y="587" class="detail">SET user:42</text><text x="860" y="614" class="detail">With expiration (TTL)</text>
+    <path d="M1066 584 H1092" stroke="#637792" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="1099" y="524" width="377" height="119" rx="14" fill="white" stroke="#c7d8e3"/><text x="1116" y="558" class="step">API → client</text><text x="1116" y="587" class="detail">Return the user data</text><text x="1116" y="614" class="detail">Later reads may hit Redis</text>
+  </g>
+
+  <rect x="48" y="700" width="1504" height="237" rx="22" fill="#fff5ec" stroke="#eed1aa" stroke-width="2"/>
+  <circle cx="86" cy="745" r="22" fill="#d68423"/><text x="80" y="753" class="num">3</text>
+  <text x="122" y="754" class="section">Write: update or delete</text>
+  <text x="122" y="783" class="detail">Change PostgreSQL first. Once it succeeds, remove the old cached value so the next read refreshes it.</text>
+  <g>
+    <rect x="75" y="820" width="250" height="84" rx="14" fill="white" stroke="#c7d8e3"/><text x="94" y="853" class="step">Client requests change</text><text x="94" y="881" class="detail">Update or delete user 42</text>
+    <path d="M330 862 H390" stroke="#637792" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="397" y="820" width="250" height="84" rx="14" fill="white" stroke="#a9bfe5"/><text x="416" y="853" class="step">API → PostgreSQL</text><text x="416" y="881" class="detail">UPDATE / DELETE succeeds</text>
+    <path d="M652 862 H712" stroke="#637792" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="719" y="820" width="250" height="84" rx="14" fill="white" stroke="#efb2b4"/><text x="738" y="853" class="step">API → Redis</text><text x="738" y="881" class="detail">DEL user:42</text>
+    <path d="M974 862 H1034" stroke="#637792" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="1041" y="820" width="435" height="84" rx="14" fill="white" stroke="#c7d8e3"/><text x="1060" y="853" class="step">API responds to client</text><text x="1060" y="881" class="detail">Next read is a cache miss and repopulates Redis</text>
+  </g>
+
+  <rect x="48" y="956" width="1504" height="85" rx="18" fill="#e9edf4"/>
+  <text x="74" y="991" class="note">If Redis is unavailable, the API can still read from PostgreSQL; cache failure must not undo a successful database write.</text>
+  <text x="74" y="1018" class="note">Cache only safe response fields. Never cache passwords or password hashes. Choose a TTL appropriate for the data.</text>
+</svg>

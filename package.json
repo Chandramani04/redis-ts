@@ -1,0 +1,35 @@
+{
+  "name": "redis-ts",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "tsx watch --env-file-if-exists=.env src/index.ts",
+    "start": "node --env-file-if-exists=.env --enable-source-maps dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint --type-aware",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.19.0",
+    "@types/pg": "^8.23.1",
+    "oxlint": "^1.85.0",
+    "oxlint-tsgolint": "^7.0.2003",
+    "prettier": "^3.9.9",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^18.0.4",
+    "express": "^5.2.1",
+    "ioredis": "^6.0.0",
+    "pg": "^8.23.0"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "auto_install_extensions": { "tsgo": true, "oxc": true },
+  "format_on_save": "on",
+  "languages": {
+    "TypeScript": {
+      "language_servers": [
+        "typescript-ls",
+        "oxlint",
+        "!vtsls",
+        "!typescript-language-server",
+        "!eslint",
+        "..."
+      ],
+      "formatter": {
+        "external": {
+          "command": "node_modules/.bin/prettier",
+          "arguments": ["--stdin-filepath", "{buffer_path}"]
+        }
+      },
+      "code_actions_on_format": { "source.fixAll.oxc": true }
+    }
+  }
+}

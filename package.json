@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "tsx watch --env-file-if-exists=.env src/index.ts",
+    "dev:worker": "tsx watch --env-file-if-exists=.env src/bullmq/worker.ts",
     "start": "node --env-file-if-exists=.env --enable-source-maps dist/index.js",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint --type-aware",
@@ -27,6 +28,7 @@
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "bullmq": "^6.3.9",
     "dotenv": "^18.0.4",
     "express": "^5.2.1",
     "ioredis": "^6.0.0",

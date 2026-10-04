@@ -200,7 +200,7 @@ app.post("/verify-otp", async (req: Request, res: Response) => {
   }
 });
 
-// #3.  Rate limiting middleware through Redis
+// #3. Fix Window Rate limiting middleware through Redis 
 
 const WINDOW_SECOND = 60; // 1 minute
 const MAX_REQUESTS = 5; // max requests per window
